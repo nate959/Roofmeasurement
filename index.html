@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eagle-Eye Pro Estimator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Print Only Header -->
+  <div id="print-header">
+    <div class="print-branding">
+      <img src="knockout-logo.png" alt="Knockout Inspections" class="brand-logo print-logo" onerror="this.style.display='none'">
+      <div>
+        <h1>Knockout Inspections</h1>
+        <p>9959 Windmill Rd<br>Fairhope, AL 36532</p>
+      </div>
+    </div>
+    <div class="print-meta">
+      <h2 id="print-title">Roof Measurement Report</h2>
+      <p>Date: <span id="print-date"></span></p>
+    </div>
+  </div>
+
+  <!-- Global View Toggler -->
+  <div id="view-toggler" class="glass-panel">
+      <button id="tab-map" class="toggle-btn active">🗺️ Estimate Map</button>
+      <button id="tab-checklist" class="toggle-btn">✅ Fortified Checklist</button>
+  </div>
+
+  <!-- MAIN APP MODULES -->
+  <div id="module-map" class="app-module active-module">
+      <!-- Map Container -->
+      <div id="map"></div>
+      
+      <div id="loading" class="overlay-glass hidden">
+        <h2>Loading Pro Engines...</h2>
+      </div>
+
+      <!-- Drawing Toolbar -->
+      <div id="toolbar" class="glass-panel">
+        <button id="btn-search" class="icon-btn tool-btn" title="Search Location" onclick="document.getElementById('search-panel').classList.toggle('hidden')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        <button id="btn-toggle-sv" class="icon-btn tool-btn" title="Toggle Street View Pitch-Finder" style="color:var(--accent-cyan);">
+           👁️ Street View
+        </button>
+        <div class="divider"></div>
+        <button id="btn-draw-area" class="tool-btn active" title="Base Area (Squares)">Area</button>
+        <button id="btn-draw-ridge" class="tool-btn" title="Ridges & Hips">Ridge/Hip</button>
+        <button id="btn-draw-valley" class="tool-btn" title="Valleys">Valley</button>
+        <div class="divider"></div>
+        <button id="btn-draw-eave" class="tool-btn" title="Eaves (Needs Drip + Starter)">Eave</button>
+        <button id="btn-draw-rake" class="tool-btn" title="Rakes (Needs Drip + Starter)">Rake</button>
+        <div class="divider"></div>
+        <button id="btn-pin-boot" class="tool-btn" title="Drop Pipe Boot Pin">📍 Boot</button>
+        <button id="btn-pin-vent" class="tool-btn" title="Drop Box Vent Pin">📍 Vent</button>
+        <div class="divider"></div>
+        <button id="btn-clear" class="tool-btn danger" title="Clear All">Clear</button>
+      </div>
+
+      <!-- Street View Picture-in-Picture Widget -->
+      <div id="sv-widget" class="glass-panel hidden">
+        <div class="panel-header" style="padding: 8px 12px;">
+            <h2 style="font-size: 14px;">Pitch-Finder (Street View)</h2>
+            <button class="icon-btn" onclick="document.getElementById('sv-widget').classList.add('hidden')">✖</button>
+        </div>
+        <div id="sv-pano"></div>
+        <div id="sv-error" class="hidden">No street view imagery available for this location.</div>
+      </div>
+
+      <!-- Search Panel -->
+      <div id="search-panel" class="glass-panel hidden">
+        <h3>Search Address</h3>
+        <input id="pac-input" class="controls" type="text" placeholder="Enter an address" />
+      </div>
+
+      <!-- Settings Panel -->
+      <div id="settings-panel" class="glass-panel">
+        <div class="panel-header">
+          <h2>Pricing Engine</h2>
+          <button id="btn-toggle-settings" class="icon-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
+        
+        <div id="settings-content" class="panel-content">
+          
+          <!-- Area Fees -->
+          <h3 class="section-title">Base Square Factors</h3>
+          <div class="row">
+              <div class="input-group half">
+                <label>Shingle Cost/Sq</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-shingle-sq" value="230.00" step="5"></div>
+              </div>
+              <div class="input-group half">
+                <label>Tear-off Labor/Sq</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-tear-sq" value="50.00" step="5"></div>
+              </div>
+          </div>
+          <div class="row">
+              <div class="input-group half">
+                <label>Waste Factor</label>
+                <div class="input-wrapper"><span class="prefix">%</span><input type="number" id="in-waste" value="10" step="1" max="100"></div>
+              </div>
+              <div class="input-group half">
+                <label>Pitch Multiplier</label>
+                <select id="in-pitch">
+                  <option value="1.0">Flat (1.0x)</option>
+                  <option value="1.054">4/12 (1.05x)</option>
+                  <option value="1.118" selected>6/12 (1.12x)</option>
+                  <option value="1.202">8/12 (1.20x)</option>
+                  <option value="1.414">12/12 (1.41x)</option>
+                </select>
+              </div>
+          </div>
+
+          <!-- Linear Fees -->
+          <h3 class="section-title">Linear Footage</h3>
+          <div class="row">
+              <div class="input-group half">
+                <label>Ridge/Hip ($/ft)</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-ridge-ft" value="15.00" step="0.5"></div>
+              </div>
+              <div class="input-group half">
+                <label>Valley Flow ($/ft)</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-valley-ft" value="12.00" step="0.5"></div>
+              </div>
+          </div>
+          <div class="row">
+              <div class="input-group half">
+                <label>Drip Edge ($/ft)</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-drip-ft" value="4.00" step="0.5"></div>
+              </div>
+              <div class="input-group half">
+                <label>Starter Sq ($/ft)</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-starter-ft" value="2.50" step="0.5"></div>
+              </div>
+          </div>
+
+          <!-- Item Fees -->
+          <h3 class="section-title">Units & Overhead</h3>
+          <div class="row">
+              <div class="input-group half">
+                <label>Pipe Boot ($/ea)</label>
+                 <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-boot-ea" value="35.00" step="1"></div>
+              </div>
+              <div class="input-group half">
+                <label>Box Vent ($/ea)</label>
+                 <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-vent-ea" value="45.00" step="1"></div>
+              </div>
+          </div>
+          <div class="row">
+              <div class="input-group half">
+                <label>Dumpster/Trash ($)</label>
+                <div class="input-wrapper"><span class="prefix">$</span><input type="number" id="in-dumpster" value="500.00" step="50"></div>
+              </div>
+              <div class="input-group half">
+                <label>Fortified Cert ($)</label>
+                <div class="input-wrapper"><span class="prefix" style="color:var(--accent-cyan);">$</span><input type="number" id="in-fortified" value="0.00" step="50" style="border-color:var(--accent-cyan);"></div>
+              </div>
+          </div>
+
+          <button id="btn-save-settings" class="primary-btn">Save Master Defaults</button>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div id="results-panel" class="glass-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+           <h2>Estimate Breakdown</h2>
+           <button class="btn-print icon-btn tool-btn" style="background:#22d3ee; color:#0f172a; padding:6px 12px; margin-bottom:12px;" title="Print PDF Report">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              Export Estimate
+           </button>
+        </div>
+        
+        <div class="result-row"><span>Gross Squares <small>(+Waste)</small>:</span><span class="value" id="res-squares">0.00</span></div>
+        <div class="result-row"><span>Ridge/Hips (ft):</span><span class="value" id="res-ridge">0.00</span></div>
+        <div class="result-row"><span>Valleys (ft):</span><span class="value" id="res-valley">0.00</span></div>
+        <div class="result-row"><span>Eaves (ft) <small>[Drip + Starter]</small>:</span><span class="value" id="res-eaves">0.00</span></div>
+        <div class="result-row"><span>Rakes (ft) <small>[Drip + Starter]</small>:</span><span class="value" id="res-rakes">0.00</span></div>
+        
+        <div class="result-row pins">
+            <span>Boots: <strong id="res-boots" class="value">0</strong></span>
+            <span>Vents: <strong id="res-vents" class="value">0</strong></span>
+        </div>
+
+        <div class="divider"></div>
+        
+        <div class="result-row total">
+          <span>Total Estimate:</span>
+          <span class="value neon-text" id="res-total">$0.00</span>
+        </div>
+      </div>
+  </div>
+
+  <!-- MODULE: FORTIFIED CHECKLIST -->
+  <div id="module-checklist" class="app-module hidden">
+      <div id="checklist-wrapper" class="glass-panel">
+          <div class="checklist-header">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                  <img src="knockout-logo.png" alt="Knockout" class="brand-logo list-logo" onerror="this.outerHTML='<i class=\'fa-solid fa-house-chimney-window\' style=\'font-size:32px;color:var(--brand-accent);\'></i>'">
+                  <div>
+                      <h2 style="font-family:'Outfit', sans-serif; font-size:28px; margin:0; color:#fff;">IBHS FORTIFIED Compliance</h2>
+                      <p style="color:var(--text-muted); margin:4px 0 0 0;">Required Documentation for Certification</p>
+                  </div>
+              </div>
+              <button class="btn-print tool-btn" style="background:#22d3ee; color:#0f172a; font-weight:700;">Export Compliance Checklist</button>
+          </div>
+
+          <div class="checklist-content">
+              <!-- Item 1 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Decking Verification</strong>
+                      <p>Capture photo establishing wood deck thickness across wide area (minimum 7/16").</p>
+                  </div>
+              </label>
+
+              <!-- Item 2 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Deck Nailing Application</strong>
+                      <p>Capture multiple photos showing 8d ring-shank nails spaced maximum 4 inches along edges and 6 inches in the field.</p>
+                  </div>
+              </label>
+
+              <!-- Item 3 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Sealed Roof Deck</strong>
+                      <p>Photo evidence of entire deck sealed (4" tape on seams + #30 felt OR full fully-adhered membrane).</p>
+                  </div>
+              </label>
+
+              <!-- Item 4 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Drip Edge Installation</strong>
+                      <p>Photo showing drip edge fastened tightly at 4 inches on center (staggered).</p>
+                  </div>
+              </label>
+
+              <!-- Item 5 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Starter Shingle Fastening</strong>
+                      <p>Verify starter strip is adhered properly with roof cement or manufacturer specified sealants at eaves and rakes.</p>
+                  </div>
+              </label>
+
+              <!-- Item 6 -->
+              <label class="check-item">
+                  <input type="checkbox" class="cb-input">
+                  <div class="cb-info">
+                      <strong>Shingle Application</strong>
+                      <p>Photo showing 6-nail per shingle pattern minimum for High Wind / Hurricane rating compliance.</p>
+                  </div>
+              </label>
+          </div>
+      </div>
+  </div>
+
+  <!-- Real User API Key included -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0zp3TG1Xtdin7d5abFr4UmbzvOOO8XS4&libraries=drawing,geometry,places&callback=initMap" async defer></script>
+  <script src="app.js"></script>
+</body>
+</html>

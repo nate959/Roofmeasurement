@@ -127,7 +127,7 @@ body, html {
 
 /* Checklist Module */
 #module-checklist {
-    background: url('https://ideausher.com/wp-content/uploads/2021/08/Roofing-App-Topbar.jpg') center/cover;
+    background: url('roof-bg.png') center/cover;
     position: relative;
 }
 #module-checklist::after {

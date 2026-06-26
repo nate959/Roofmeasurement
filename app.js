@@ -93,24 +93,27 @@ function initMap() {
   updateStreetView(defaultLoc);
 
   const input = document.getElementById('pac-input');
-  const searchBox = new google.maps.places.SearchBox(input);
-  
-  map.addListener('bounds_changed', () => { searchBox.setBounds(map.getBounds()); });
-  searchBox.addListener('places_changed', () => {
-    const places = searchBox.getPlaces();
-    if (places.length == 0) return;
-    const bounds = new google.maps.LatLngBounds();
-    places.forEach((place) => {
-      if (!place.geometry || !place.geometry.location) return;
-      if (place.geometry.viewport) bounds.union(place.geometry.viewport);
-      else bounds.extend(place.geometry.location);
-    });
-    map.fitBounds(bounds);
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    fields: ['geometry', 'formatted_address', 'name']
+  });
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry || !place.geometry.location) {
+      alert('Could not find that address. Please select one from the dropdown suggestions.');
+      return;
+    }
+
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+    }
     map.setZoom(21);
-    
+
     // Update Street View Widget
-    updateStreetView(places[0].geometry.location);
-    
+    updateStreetView(place.geometry.location);
+
     document.getElementById('search-panel').classList.add('hidden');
   });
 

@@ -37,7 +37,7 @@ body, html {
 #view-toggler {
   top: 16px; left: 50%; transform: translateX(-50%);
   display: flex; padding: 6px; border-radius: 100px;
-  z-index: 999;
+  z-index: 1200;
 }
 .toggle-btn {
   background: transparent; color: var(--text-muted);
@@ -75,7 +75,7 @@ body, html {
 
 
 /* Search Panel */
-#search-panel { top: 140px; left: 50%; transform: translateX(-50%); padding: 16px; width: 320px; }
+#search-panel { top: 140px; left: 50%; transform: translateX(-50%); padding: 16px; width: 320px; z-index: 1100; }
 #search-panel h3 { margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-muted);}
 .controls { width: calc(100% - 24px); padding: 10px 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-neon); border-radius: 6px; color: white; font-family: 'Inter', sans-serif; outline: none; }
 .controls:focus { border-color: var(--accent-cyan); box-shadow: 0 0 8px var(--border-neon-glow); }
@@ -133,6 +133,8 @@ body, html {
 #module-checklist::after {
     content:''; position:absolute; top:0;left:0;width:100%;height:100%;
     background: rgba(15,23,42,0.85); backdrop-filter:blur(8px);
+    pointer-events: none; /* CRITICAL: allow clicks to pass through to buttons */
+    z-index: 1;
 }
 #checklist-wrapper {
     position: absolute; top: 120px; left: 50%; transform: translateX(-50%);

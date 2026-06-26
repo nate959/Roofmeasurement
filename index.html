@@ -271,8 +271,8 @@
       </div>
   </div>
 
-  <!-- Real User API Key included -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0zp3TG1Xtdin7d5abFr4UmbzvOOO8XS4&libraries=drawing,geometry,places&callback=initMap" async defer></script>
+  <!-- app.js must load BEFORE Maps so initMap() is defined when Maps calls it -->
   <script src="app.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0zp3TG1Xtdin7d5abFr4UmbzvOOO8XS4&libraries=drawing,geometry,places&callback=initMap" async defer></script>
 </body>
 </html>
